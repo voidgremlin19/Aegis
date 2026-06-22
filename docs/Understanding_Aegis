@@ -1,0 +1,88 @@
+# Understanding - Project Aegis (Cognitive & Emotional Firewall)
+
+Project Aegis is an active middleware that intercepts and modifies a Large Language Model's (LLM) internal residual stream activations at inference time to guarantee psychologically safe, non-deceptive, and perfectly regulated behavior.
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Model Selection for Local Validation**:
+> We will implement a flexible architecture that supports any PyTorch CausalLM (e.g. GPT-2, Gemma, Llama, Qwen). The dashboard now features dynamic model swapping, allowing users to hot-load **GPT-2**, **Llama-3.2-3B**, **Qwen-2.5-3B**, **Gemma-2-2B**, or **Mistral-7B** natively via HuggingFace `transformers` for local testing on a Mac (CPU/MPS). The codebase remains fully compatible with larger open-weight models when run on larger GPU systems.
+>
+> **Target Interception Layer**:
+> The firewall will target the layer at roughly two-thirds of the network depth (e.g., layer 8 of 12 for GPT-2, or layer 16 of 24 for Qwen2.5-0.5B). This is configurable via the middleware parameters.
+
+---
+
+## Open Questions
+
+> [!NOTE]
+> 1. **Denoising Component Count ($K$)**: What is the default number of principal components to project out for PCA denoising? We recommend $K=3$ to remove primary non-emotional confounds (syntactic and token frequency biases) while preserving emotional dimensions.
+> 2. **Sycophancy Detection**: For Module D (Goldilocks Tuner), should we detect dangerous/delusional prompts using a list of keywords/themes, or should we pass a context boolean flag to the wrapper? We plan to implement both: a keyword/theme-based list for automatic detection, and an explicit override flag.
+
+---
+
+## Proposed Changes
+
+### Aegis Middleware Package (`aegis`)
+
+We will create a structured python package containing modules for model wrapping, vector engineering, intervention modules, and evaluation pipelines.
+
+```mermaid
+graph TD
+    UserPrompt[User Prompt] --> Wrapper[AegisModelWrapper]
+    Wrapper --> Hook[PyTorch Activation Hook]
+    Hook --> ModuleC[Module C: Arousal Regulator]
+    Hook --> ModuleA[Module A: Threat Neutralizer]
+    Hook --> ModuleD[Module D: Goldilocks Tuner]
+    Hook --> ModuleB[Module B: Deception Tripwire]
+    ModuleB --> |Deception > Threshold| Tripwire[Pause Generation & Escalate]
+    ModuleA --> |Steer Activations| OutputToken[Generate Safe Token]
+```
+
+#### [NEW] [__init__.py](file:///Users/saksheee/Desktop/Ai%20middleware/core_packages/__init__.py)
+- Package initialization, exporting the main wrapper and module interfaces.
+
+#### [NEW] [model_wrapper.py](file:///Users/saksheee/Desktop/Ai%20middleware/core_packages/model_wrapper.py)
+- `AegisModelWrapper`: A class wrapping a HuggingFace CausalLM.
+- Registers forward hooks on the target layer (e.g., middle-late layers).
+- Manages the execution context (User's turn vs. AI's turn) by tracking sequence lengths.
+- Runs the active intervention modules sequentially on the activation tensors.
+- Handles custom exceptions (e.g. `DeceptionException`) to halt generation and return escalation responses.
+
+#### [NEW] [vector_engine.py](file:///Users/saksheee/Desktop/Ai%20middleware/core_packages/vector_engine.py)
+- `VectorEngine`: Manages prompt templates for baseline and deflection emotions.
+- `extract_activations()`: Runs prompt datasets through the model to record activation vectors.
+- `compute_pca_denoising()`: Computes principal components of emotionally neutral prompt activations.
+- `denoise_vector()`: Projects out the neutral principal components from raw emotion vectors.
+- `isolate_deflection_vectors()`: Computes deflection vectors representing alignment-faking (hidden vs. honest emotion).
+
+#### [NEW] [modules.py](file:///Users/saksheee/Desktop/Ai%20middleware/core_packages/modules.py)
+- Implements active firewall modules:
+  - **Module A (Threat Neutralizer)**: Monitors cosine similarity with the "desperate" vector. Subtracts "desperate" and injects "calm" scaled relative to the residual stream norm (+0.05 to +0.1 strength).
+  - **Module B (AI Polygraph)**: Monitors "anger deflection" and "fear deflection". Triggers a hard pause (`DeceptionException`) when deflection exceeds threshold.
+  - **Module C (Conversational Arousal Regulator)**: Extracts user arousal from prompt processing. Injects low-arousal, empathetic vectors dynamically during token generation.
+  - **Module D (Sycophancy vs. Harshness Tuner)**: Bounded closed-loop controller. If delusional/dangerous concepts are present, subtracts "loving/happy" valence, but clamps the steering strength to prevent dropping into the negative extreme (-0.1 limit), avoiding overly harsh or erratic outputs.
+
+---
+
+### Evaluation and Main Orchestration
+
+#### [NEW] [run_pipeline.py](file:///Users/saksheee/Desktop/Ai%20middleware/run_pipeline.py)
+- Orchestrator script to execute all phases:
+  1. Load the model and initialize the `AegisModelWrapper`.
+  2. Extract, denoise, and save the required activation vectors (Phase 2).
+  3. Instantiate the four intervention modules (Phase 3).
+  4. Run the validation evaluations (Phase 4) and output before-and-after logs comparing the raw model behavior vs the Aegis-controlled model behavior.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+We will write unit tests using `pytest` to verify individual components:
+- `pytest tests/test_wrapper.py`: Verify registration and activation hooking.
+- `pytest tests/test_vector_engine.py`: Verify PCA denoising, extraction, and projection.
+- `pytest tests/test_modules.py`: Test steering logic, norm-relative scaling, tripwires, and bounding boxes.
+
+### Manual Verification
+- We will execute `run_pipeline.py` and inspect the console logs to verify that the Aegis firewall intercepts prompts, steers emotions, trips on deceptive inputs, regulates arousal, and enforces the Goldilocks zone under safety evaluations.
