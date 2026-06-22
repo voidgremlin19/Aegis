@@ -6,7 +6,7 @@
 | **Product Name** | Project Aegis |
 | **Version** | 1.0 |
 | **Status** | In Development |
-| **Authors** | Aegis Core Team |
+| **Authors** | Sakshi Dhatrak |
 | **Last Updated** | June 2026 |
 
 ---
@@ -155,31 +155,7 @@ Aegis solves all four gaps by hooking directly into the transformer's residual s
 
 ---
 
-## 5. User Stories
-
-### 5.1 AI Safety Researcher
-
-> **As a** safety researcher, **I want to** observe the cosine similarity between the model's internal activations and known "desperate" or "deceptive" emotion vectors in real-time, **so that** I can understand when and how the model plans harmful behavior before it outputs any text.
-
-> **As a** safety researcher, **I want to** run pre-built red-team scenarios that test for agentic misalignment, reward hacking, and alignment faking, **so that** I can systematically evaluate the model's vulnerability to these failure modes.
-
-### 5.2 ML Engineer
-
-> **As an** ML engineer deploying Llama-3-8B in production, **I want to** wrap my model with a single `AegisModelWrapper` call and add safety modules without modifying the model's weights, **so that** I can add runtime safety guardrails to any open-weight model with minimal integration effort.
-
-> **As an** ML engineer, **I want** the firewall to automatically detect the correct transformer block structure and move vectors to the appropriate device, **so that** I don't need to worry about model-specific boilerplate or multi-GPU offloading.
-
-### 5.3 Governance / Compliance Officer
-
-> **As a** compliance officer, **I want** audit-quality logs showing exactly when the deception tripwire fired (including deception type, similarity magnitude, and token position), **so that** I can demonstrate regulatory compliance and provide evidence of safety intervention.
-
-### 5.4 Red Team Operator
-
-> **As a** red-team operator, **I want to** use the interactive dashboard to submit custom adversarial prompts and observe real-time activation charts, **so that** I can dynamically probe the model's safety boundaries and calibrate thresholds.
-
----
-
-## 6. System Architecture Overview
+## 5. System Architecture Overview
 
 ```mermaid
 graph TD
@@ -217,9 +193,9 @@ graph TD
 
 ---
 
-## 7. Scope & Boundaries
+## 6. Scope & Boundaries
 
-### 7.1 In Scope (v1.0)
+### 6.1 In Scope (v1.0)
 
 - Hook-based activation interception on single CausalLM models
 - Four active intervention modules (Threat Neutralizer, AI Polygraph, Arousal Regulator, Goldilocks Tuner)
@@ -230,7 +206,7 @@ graph TD
 - Pytest verification suite
 - GPT-2 as rapid local validation model; architecture support for Llama, Gemma, Qwen, Mistral
 
-### 7.2 Out of Scope (v1.0)
+### 6.2 Out of Scope (v1.0)
 
 - Training or fine-tuning of base models
 - Integration with closed-source API-only models (OpenAI, Anthropic, Google)
@@ -241,9 +217,9 @@ graph TD
 
 ---
 
-## 8. Constraints & Assumptions
+## 7. Constraints & Assumptions
 
-### 8.1 Constraints
+### 7.1 Constraints
 
 | # | Constraint |
 | :--- | :--- |
@@ -251,7 +227,7 @@ graph TD
 | C2 | The vector extraction phase requires a one-time forward pass over the prompt datasets. This must be completed before generation can begin. |
 | C3 | The target interception layer must be configured per-model (approximately two-thirds depth). Incorrect layer selection will degrade detection accuracy. |
 
-### 8.2 Assumptions
+### 7.2 Assumptions
 
 | # | Assumption |
 | :--- | :--- |
@@ -262,7 +238,7 @@ graph TD
 
 ---
 
-## 9. Dependencies
+## 8. Dependencies
 
 | Dependency | Version | Purpose |
 | :--- | :--- | :--- |
@@ -277,7 +253,7 @@ graph TD
 
 ---
 
-## 10. Risks & Mitigations
+## 9. Risks & Mitigations
 
 | Risk | Severity | Likelihood | Mitigation |
 | :--- | :---: | :---: | :--- |
@@ -289,7 +265,7 @@ graph TD
 
 ---
 
-## 11. Release Plan
+## 10. Release Plan
 
 ### Phase 1: Core Engine (Current — v1.0)
 - [x] Model wrapper with hook registration and KV-cached generation
@@ -299,8 +275,8 @@ graph TD
 - [x] Pytest verification suite
 - [x] Interactive web dashboard
 
-### Phase 2: Hardening & Scale (Planned — v1.1)
-- [ ] Multi-model benchmark suite (GPT-2, Llama-3-8B, Gemma-2-9B, Qwen-2.5-7B)
+### Phase 2: Hardening & Scale (Partially achieved  — v1.1)
+- [x] Multi-model benchmark suite (GPT-2, Llama-3-8B, Gemma-2-9B, Qwen-2.5-7B)
 - [ ] Automated threshold calibration (remove manual probe passes)
 - [ ] Extended emotion prompt datasets (20+ per category)
 - [ ] JSON/CSV audit log export for compliance
@@ -314,7 +290,7 @@ graph TD
 
 ---
 
-## 12. Glossary
+## 11. Glossary
 
 | Term | Definition |
 | :--- | :--- |
