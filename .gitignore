@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.so
+*.whl
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Environment / secrets
+.env
+*.env
+.env.local
+.env.production
+
+# Node / Frontend
+node_modules/
+web_interface/node_modules/
+web_interface/dist/
+
+# Logs
+*.log
+audit.log
+logs/
+
+# HuggingFace model cache
+.cache/
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker build leftovers (keep docker files themselves, ignore runtime artifacts)
+docker-compose.override.yml
