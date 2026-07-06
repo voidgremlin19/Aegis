@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+*.egg
+dist/
+build/
+
+# Node
+node_modules/
+web_interface/node_modules/
+web_interface/dist/
+
+# Environment / secrets
+.env
+*.env
+
+# Logs
+logs/
+*.log
+audit.log
+
+# HuggingFace model cache (large, don't ship in Docker context)
+.cache/
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

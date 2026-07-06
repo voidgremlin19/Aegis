@@ -1,0 +1,46 @@
+services:
+  aegis:
+    build: .
+    image: aegis-dashboard:latest
+    container_name: aegis-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+    # ── GPU access (remove this section if you don't have a GPU) ──
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    environment:
+      # The model to load on startup. Options:
+      #   gpt2 (small, CPU-friendly)
+      #   meta-llama/Llama-3.2-3B
+      #   Qwen/Qwen2.5-3B
+      #   google/gemma-2-2b
+      #   mistralai/Mistral-7B-v0.1
+      - AEGIS_MODEL_NAME=gpt2
+
+      # Set an API key to protect your endpoints (optional).
+      # If not set, the server runs in open/dev mode.
+      - AEGIS_API_KEY=${AEGIS_API_KEY:-}
+
+      # CORS: comma-separated list of allowed origins.
+      # For production, change this to your actual domain.
+      - AEGIS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
+    volumes:
+      # Persist the HuggingFace model cache so models are not
+      # re-downloaded every time the container restarts.
+      - hf-model-cache:/app/.cache/huggingface
+
+      # Persist audit logs to the host machine
+      - ./logs:/app/logs
+
+volumes:
+  hf-model-cache:
+    driver: local
