@@ -85,11 +85,11 @@ secrets = [modal.Secret.from_name("aegis-secrets")]
     secrets=secrets,
     # Mount the local core_packages directory into the container
     mounts=[
-        modal.mount.Mount.from_local_dir(
+        modal.Mount.directory(
             "./core_packages",
             remote_path="/root/core_packages",
         ),
-        modal.mount.Mount.from_local_file(
+        modal.Mount.file(
             "./pyproject.toml",
             remote_path="/root/pyproject.toml",
         ),
