@@ -28,8 +28,14 @@ let isRunning = false;
             if (statusMsg) statusMsg.style.display = "none";
             overlay.style.display = "flex";
             
+            // VITE_BACKEND_URL is injected at build time (set in Vercel dashboard).
+            // Falls back to same-origin for local development.
+            const backendBase = (typeof __BACKEND_URL__ !== 'undefined' && __BACKEND_URL__)
+                ? `https://${__BACKEND_URL__}`
+                : '';
+
             try {
-                const response = await fetch('/api/model', {
+                const response = await fetch(`${backendBase}/api/model`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ model_name: newModel })
@@ -49,16 +55,22 @@ let isRunning = false;
 
         function connectWebSocket() {
             if (document.getElementById("executionMode").value !== "api") return;
-            
-            const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-            const wsHost = window.location.host;
-            // Handle offline case manually if loaded from file://
-            let wsUrl = `${wsProtocol}//${wsHost}/api/ws`;
-            
-            if (window.location.protocol === "file:") {
+
+            // VITE_BACKEND_URL is injected at build time by Vite (set in Vercel dashboard).
+            // In local dev (same-origin), falls back to window.location.host.
+            let wsUrl;
+            if (typeof __BACKEND_URL__ !== 'undefined' && __BACKEND_URL__) {
+                // Deployed: always use wss:// to the Modal backend domain
+                wsUrl = `wss://${__BACKEND_URL__}/api/ws`;
+            } else if (window.location.protocol === "file:") {
+                // Opened as a local file (not served by a server)
                 wsUrl = "ws://127.0.0.1:8000/api/ws";
+            } else {
+                // Local dev server (npm run dev / FastAPI same-origin)
+                const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+                wsUrl = `${wsProtocol}//${window.location.host}/api/ws`;
             }
-            
+
             console.log(`Connecting to WebSocket: ${wsUrl}`);
             wsConnection = new WebSocket(wsUrl);
 
