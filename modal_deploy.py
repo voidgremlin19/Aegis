@@ -68,7 +68,7 @@ HF_CACHE_DIR = "/root/.cache/huggingface"
 # Secrets (set these in the Modal dashboard or via `modal secret create`)
 # ---------------------------------------------------------------------------
 
-secrets = [modal.Secret.from_name("aegis-secrets", required=False)]
+secrets = [modal.Secret.from_name("aegis-secrets")]
 
 # ---------------------------------------------------------------------------
 # ASGI app — wraps the existing FastAPI `app` from core_packages/server.py
